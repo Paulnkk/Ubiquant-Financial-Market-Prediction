@@ -1,45 +1,44 @@
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
-import xgboost
-from xgboost import XGBRegressor
-import ubiquant
-#30 lin mod
-CNT_MODELS = 30
 
+#40 lin mod
+CNT_MODELS = 40
 
+%%time
 data = pd.read_csv('data.csv')
 
-y = data.pop('target')
-X = data.drop(columns=['row_id'])
+y = data.target.copy()
+X = data.drop(columns=['time_id', 'target'])
+X.row_id = pd.to_numeric(X.row_id.str.split('_').map(lambda x: x[1]))
 
 models = []
 
 for i in range(0, CNT_MODELS):
     X_s = X.loc[i::CNT_MODELS]
     y_s = y.loc[X_s.index]
-    models.append(XGBRegressor(tree_method = 'gpu_hist', gpu_id = 0).fit(X_s, y_s))
+    models.append(LinearRegression().fit(X_s, y_s))
 
-df = pd.DataFrame(columns=np.arange(len(models)))
+class LINEAR_models():
+    
+    def __init__(self, models):
+        self.models = models
+        
+    def predict(self, X):
+        summ = self.models[0].predict(X)
+        for model in self.models[1:]:
+            summ += model.predict(X)
+            
+        return summ / len(self.models)
+    
+model = LINEAR_models(models)
 
-for i, model in enumerate(models):
-    df[i]=model.predict(X[:1000000])
-
-regr = XGBRegressor(tree_method='gpu_hist', gpu_id=0).fit(df.values, y[:1000000])
-
+#API for kaggle notebook
+import ubiquant
 env = ubiquant.make_env()
 iter_test = env.iter_test()
-i = 0
 
 for (test_df, sample_prediction_df) in iter_test:
-    test_df.reset_index(inplace = True)
-    test_df.pop('row_id')
-    test_df.rename(columns={'index':'time_id'}, inplace = True)
-    test_df['time_id'] = i
-    print(test_df)
-    df = pd.DataFrame(columns=np.arange(len(models)))
-    for i, model in enumerate(models):
-        df[i] = model.predict(test_df)
-    sample_prediction_df['target'] = regr.predict(df)
+    test_df.row_id = pd.to_numeric(test_df.row_id.str.split('_').map(lambda x: x[1]))
+    sample_prediction_df['target'] = model.predict(test_df)
     env.predict(sample_prediction_df)
-    i += 1

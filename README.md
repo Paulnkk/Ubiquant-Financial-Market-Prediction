@@ -1,4 +1,4 @@
-# Ubiquant-Market-Prediction
+# Ubiquant-Financial-Market-Prediction
 
 The Challenge can be found at:
 https://www.kaggle.com/c/ubiquant-market-prediction/overview

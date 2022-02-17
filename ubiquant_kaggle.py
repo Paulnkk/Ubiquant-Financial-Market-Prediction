@@ -5,8 +5,8 @@ from sklearn.linear_model import LinearRegression
 #40 lin mod
 CNT_MODELS = 40
 
-%%time
-data = pd.read_csv('data.csv')
+#%%time
+data = pd.read_csv("../input/ubiquant-market-prediction/train.csv", dtype=dtypes, nrows=500000)
 
 y = data.target.copy()
 X = data.drop(columns=['time_id', 'target'])

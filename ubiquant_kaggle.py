@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-#40 lin mod
-CNT_MODELS = 40
+#30 lin mod
+CNT_MODELS = 30
 
 #%%time
 data = pd.read_csv("../input/ubiquant-market-prediction/train.csv", dtype=dtypes, nrows=500000)

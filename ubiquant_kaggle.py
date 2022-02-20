@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
+#Calc Correlation matrix
+
+
 #30 lin mod
 CNT_MODELS = 30
 
